@@ -1,32 +1,31 @@
 # setup-node-gpu
 
-# Links
+So you want to do machine learning on your fancy GPU machine? Going to build some nice neural-networks?
+Here is a easy setup for Debian 9 (strech) GPU machine.
+
+# I got my information from
 
     https://unix.stackexchange.com/questions/218163/how-to-install-cuda-toolkit-7-8-9-on-debian-8-jessie-or-9-stretch
     https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal
     https://www.anaconda.com/distribution/#download-section
     https://github.com/fastai/fastai
-    
 
 
+# Setup CUDA
 
-Setup a CUDA enable node for pytorch etc
+    # install compiles and kernels
+    sudo apt install -y gcc g++ linux-headers-amd64 linux-source
 
-
-    sudo apt-get install gcc g++ gcc-4.9 g++-4.9 libxi libxi6 libxi-dev libglu1-mesa libglu1-mesa-dev libxmu6 libxmu6-dev linux-headers-amd64 linux-source
-
-
-# what i did
-
-    sudo apt install gcc g++
-    # sudo apt install libglu1-mesa libx11-6 libxi6 libxmu6 # was already found
-
-
+    # Download cuda installer
     wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux
 
+    # Stop display manager (x). Either gdm, kdm, lightdm ...
     sudo service lightdm stop
 
-    sudo ./cuda_10.0.130_410.48_linux.run 
+    # install the graphics drivers
+    chmod +x ./cuda_10.0.130_410.48_linux.run
+    # sudo <CudaInstaller>.run -silent -driver # should work instead of answering messages
+    sudo ./cuda_10.0.130_410.48_linux.run
         > accept eula
         > accept unsupported config
         > accept graphics driver
@@ -35,8 +34,10 @@ Setup a CUDA enable node for pytorch etc
         > deny toolkit
         > deny sample
 
+    # restart the machine with the new drivers
     sudo reboot
 
+    # install the cuda toolkit
     sudo ./cuda_10.0.130_410.48_linux.run 
         > accept eula
         > accept unsupported config
@@ -45,24 +46,7 @@ Setup a CUDA enable node for pytorch etc
         ..
 
 
-Driver:   Not Selected
-Toolkit:  Installed in /usr/local/cuda-10.0
-Samples:  Installed in /home/charnley/opt/cuda, but missing recommended libraries
-
-Please make sure that
- -   PATH includes /usr/local/cuda-10.0/bin
- -   LD_LIBRARY_PATH includes /usr/local/cuda-10.0/lib64, or, add /usr/local/cuda-10.0/lib64 to /etc/ld.so.conf and run ldconfig as root
-
-To uninstall the CUDA Toolkit, run the uninstall script in /usr/local/cuda-10.0/bin
-
-Please see CUDA_Installation_Guide_Linux.pdf in /usr/local/cuda-10.0/doc/pdf for detailed information on setting up CUDA.
-
-***WARNING: Incomplete installation! This installation did not install the CUDA Driver. A driver of version at least 384.00 is required for CUDA 10.0 functionality to work.
-To install the driver using this installer, run the following command, replacing <CudaInstaller> with the name of this run file:
-    sudo <CudaInstaller>.run -silent -driver
-
-
-# test cuda
+# test cuda setup
 
     cd NVIDIA_CUDA-7.5_Samples/0_Simple/vectorAdd
     make
@@ -71,14 +55,15 @@ To install the driver using this installer, run the following command, replacing
 
 # setup anaconda / pytorch
 
-
+    # Download anaconda / python3 installer
     wget https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh
 
-    PREFIX=/home/charnley/opt/anaconda3
-
+    # silently install it to a prefix
     bash Anaconda3-2018.12-Linux-x86_64.sh -b -p $HOME/opt/anaconda3
 
-    $HOME/opt/anaconda3/bin/conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
+    # install pytorch using conda
+    $HOME/opt/anaconda3/bin/conda install -y pytorch torchvision cudatoolkit=10.0 -c pytorch
+
 
 # test pytorch
 
@@ -113,8 +98,28 @@ To install the driver using this installer, run the following command, replacing
 
 # optional, install fastai
 
+    $HOME/opt/anaconda3/bin/conda install -y -c fastai fastai
 
-    $HOME/opt/anaconda3/bin/conda install -c fastai fastai
+
+# KNOWN ISSUES
+
+## Boot halts with `/dev/sda1: clean .... files .. blocks`
+
+    Fresh install of debian 9 and GeForce 2080 ti, i had the problem with debian wont boot
+
+    stackoverflow suggested
+    https://askubuntu.com/questions/882385/dev-sda1-clean-this-message-appears-after-i-startup-my-laptop-then-it-w
+
+    that this is nvidias fault. and it was. I hope your motherboard has an alternativ VGA port or something
+
+    then by-pass gdm and use tty to setup your computer
+
+    or remove graphicscard and setup the computer first
+
+
+## The driver installation is unable to locate the kernel source.
+
+You forgot to install the linux-headers from the first line...
 
 
 
