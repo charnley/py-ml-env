@@ -3,5 +3,6 @@ dependencies:
   - python=3.5
   - tensorflow-gpu
   - keras
+  - pytorch:pytorch
   - pip
 
