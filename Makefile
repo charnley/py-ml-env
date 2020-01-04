@@ -22,5 +22,6 @@ update: environment.yml
 notebook:
 	set -e;\
 	HOSTIP=`ip route get 1 | awk '{print $$NF;exit}'`;\
-	${JUPYTER} notebook --ip $$HOSTIP --port 8888
+	# ${JUPYTER} notebook --ip $$HOSTIP --port 8888 --no-browser
+	${JUPYTER} notebook --ip 0.0.0.0 --port 8888 --no-browser
 

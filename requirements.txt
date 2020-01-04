@@ -7,3 +7,4 @@ jupyter
 opencv-python
 pygal
 Pillow
+scikit-plot
